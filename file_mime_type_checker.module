@@ -115,7 +115,7 @@ function file_mime_type_checker_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * callback for file/image field list.
+ * Callback for file/image field list details.
  */
 function file_mime_type_checker_get_fields($type = 'text', $form_type = 'page') {
   $fields = array();
