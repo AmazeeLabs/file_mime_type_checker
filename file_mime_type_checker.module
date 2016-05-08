@@ -44,7 +44,7 @@ function file_mime_type_checker_menu() {
   $items = array();
   $items['admin/config/media/mime_type'] = array(
     'title' => 'File Mime Type Checker',
-    'description' => 'Helps to set the credential for mailgun api.',
+    'description' => 'Helps tdetect file mime type for security concern.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('file_mime_type_checker_form'),
     'access arguments' => array('administer mime type form'),
@@ -54,16 +54,16 @@ function file_mime_type_checker_menu() {
 }
 
 /**
- * Callback for Mailgun credential form.
+ * Callback for File Mime type form.
  */
 function file_mime_type_checker_form() {
   $form = array();
-  $form['mime_file_type'] = array(
+  $form['file_mime_type_checker'] = array(
     '#title' => t('File Extension'),
     '#description' => t('Enable if you want to check mime type of file.'),
     '#type' => 'radios',
     '#options' => drupal_map_assoc(array(t('Enable'), t('Disable'))),
-    '#default_value' => variable_get('mime_file_type'),
+    '#default_value' => variable_get('file_mime_type_checker'),
   );
   return system_settings_form($form);
 }
@@ -86,10 +86,10 @@ function file_mime_type_checker_form_field_ui_field_edit_form_alter(&$form, &$fo
  * Implements hook_form_alter().
  */
 function file_mime_type_checker_form_alter(&$form, &$form_state, $form_id) {
-  if(variable_get('mime_file_type', '') == 'Enable') {
+  if(variable_get('file_mime_type_checker', '') == 'Enable') {
 	  if(isset($form['type']['#value']) && !empty($form['type']['#value'])) {
-		  $file_fields = _get_fields('file',$form['type']['#value']);
-		  $image_fields = _get_fields('image',$form['type']['#value']);
+		  $file_fields = file_mime_type_checker_get_fields('file',$form['type']['#value']);
+		  $image_fields = file_mime_type_checker_get_fields('image',$form['type']['#value']);
 		  $file_image_mime_type = array_merge($file_fields,$image_fields);
 		  foreach ($file_image_mime_type as $field) {
 			if (isset($form[$field])) {
@@ -118,7 +118,7 @@ function file_mime_type_checker_form_alter(&$form, &$form_state, $form_id) {
   }
 }
 
-function _get_fields($type = 'text', $form_type = 'page') {
+function file_mime_type_checker_get_fields($type = 'text', $form_type = 'page') {
   $fields = array();
   $result = db_query('SELECT n.field_name FROM {field_config} n, {field_config_instance} fci WHERE n.field_name = fci.field_name && fci.bundle = :form_type && n.type = :type', array(':form_type'=>$form_type, ':type' => $type));
   foreach ($result as $record) {
@@ -161,35 +161,4 @@ function file_mime_type_checker_validate($file,$ext= NULL) {
   }
   finfo_close($finfo);
   return $errors;
-}
-
-/**
- * Validate callback for custom filefield.
- */
-function mailgun_email_validator_validate_custom_email_field($element, &$form_state, &$form) {
-  print_r($form_state);exit;
-  $email_address = $form_state['values'][$element['#name']];
-  print_r($email_address);exit;
-  if (isset($email_address) && !empty($email_address)) {
-    if (!valid_email_address($email_address)) {
-      form_set_error($element['#name'], t('"%mail" is not a valid email address', array('%mail' => $email_address)));
-    }
-    else {
-      // Calling mailgun email validation callback function.
-      $raw_response = mailgun_email_validator_api($email_address);
-      if ($raw_response->code == "200") {
-        $response_data = filter_xss($raw_response->data);
-        $response = drupal_json_decode($response_data);
-        if ($response['is_valid'] == FALSE) {
-          if (isset($response['did_you_mean']) && !empty($response['did_you_mean'])) {
-            $form[$element['#name']]['#suffix'] = '<div class="mailgun_suggest"><span class="did_you_mean">' . t('Did you mean') . '</span> : <span class="mailgun_address">' . check_plain($response['did_you_mean']) . '</span></div>';
-          }
-          form_set_error($element['#name'], t('"%mail" is not a valid email address', array('%mail' => $email_address)));
-        }
-      }
-      else {
-        drupal_set_message(t("Mailgun Api doesn't seem to be responding, please configure the !mailgun api-key", array('!mailgun' => l(t('Mailgun'), 'admin/config/services/mailgun'))), 'warning');
-      }
-    }
-  }
 }
