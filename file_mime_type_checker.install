@@ -6,13 +6,6 @@
  */
 
 /**
- * Implements hook_install().
- */
-function file_mime_type_checker_install() {
-  variable_set('file_mime_type_checker', 'Disable');
-}
-
-/**
  * Implements hook_uninstall().
  */
 function file_mime_type_checker_uninstall() {

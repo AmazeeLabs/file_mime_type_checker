@@ -17,9 +17,9 @@ check on the file's mime type and compare that to the allowed file extensions,
 as these are set by the admin within the content type's field settings. 
 
 This module performs a server side validation for the extension 
-of an uploaded file of any content type's file field. User can validate the 
-file field accrording to the condition (Enable Mime Type Check in file or 
-image field).
+of an uploaded file of any content type's file field as well as Image Field. User can validate the 
+file field & image field accrording to the condition
+(Enable Mime Type Check in file or image field).
 
 CONFIGURATION
 -------------
