@@ -4,7 +4,6 @@
  * @file
  * Provide structure for the administrative interface to enable mime type.
  */
- 
 /**
  * Callback for File Mime type form.
  */
