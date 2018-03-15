@@ -133,6 +133,7 @@ function file_mime_type_checker_validate($file, $ext = NULL) {
     $filemimetype = finfo_file($finfo, $filepath, FILEINFO_MIME_TYPE);
     $file_image_mime = explode('/', $filemimetype);
     $ext_match = $file_image_mime[1];
+    $ext_match = _file_mime_type_checker_get_extension($ext_match);
     if (in_array($ext_match, $disallow_file_ext)) {
       $errors[] = t('Invalid file type');
     }
@@ -144,4 +145,81 @@ function file_mime_type_checker_validate($file, $ext = NULL) {
   }
   finfo_close($finfo);
   return $errors;
+}
+
+/**
+ * Map propietary extensions to the file extension.
+ *
+ * @see http://php.net/manual/en/function.finfo-file.php#112936
+ */
+function _file_mime_type_checker_get_extension($file_mime_type) {
+  switch ($file_mime_type) {
+    // START MS Office 2007 Docs.
+    case 'vnd.openxmlformats-officedocument.wordprocessingml.document':
+      return 'docx';
+
+    case 'vnd.ms-word.document.macroEnabled.12':
+      return 'docm';
+
+    case 'vnd.openxmlformats-officedocument.wordprocessingml.template':
+      return 'dotx';
+
+    case 'vnd.ms-word.template.macroEnabled.12':
+      return 'dotm';
+
+    case 'vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+      return 'xlsx';
+
+    case 'vnd.ms-excel.sheet.macroEnabled.12':
+      return 'xlsm';
+
+    case 'vnd.openxmlformats-officedocument.spreadsheetml.template':
+      return 'xltx';
+
+    case 'vnd.ms-excel.template.macroEnabled.12':
+      return 'xltm';
+
+    case 'vnd.ms-excel.sheet.binary.macroEnabled.12':
+      return 'xlsb';
+
+    case 'vnd.ms-excel.addin.macroEnabled.12':
+      return 'xlam';
+
+    case 'vnd.openxmlformats-officedocument.presentationml.presentation':
+      return 'pptx';
+
+    case 'vnd.ms-powerpoint.presentation.macroEnabled.12':
+      return 'pptm';
+
+    case 'vnd.openxmlformats-officedocument.presentationml.slideshow':
+      return 'ppsx';
+
+    case 'vnd.ms-powerpoint.slideshow.macroEnabled.12':
+      return 'ppsm';
+
+    case 'vnd.openxmlformats-officedocument.presentationml.template':
+      return 'potx';
+
+    case 'vnd.ms-powerpoint.template.macroEnabled.12':
+      return 'potm';
+
+    case 'vnd.ms-powerpoint.addin.macroEnabled.12':
+      return 'ppam';
+
+    case 'vnd.openxmlformats-officedocument.presentationml.slide':
+      return 'sldx';
+
+    case 'vnd.ms-powerpoint.slide.macroEnabled.12':
+      return 'sldm';
+
+    case 'msonenote':
+      return 'one';
+
+    case 'thmx':
+      return 'application/vnd.ms-officetheme';
+
+    // END MS Office 2007 Docs.
+  }
+
+  return $file_mime_type;
 }
